@@ -1,0 +1,350 @@
+openapi: '3.0.2'
+info:
+  title: BSCSHybrid
+  version: '1.0'
+servers:
+  - url: https://localhost/v1
+
+components:
+  schemas:
+    determineRechargeInput:
+      title: determineRechargeInput
+      description: 'Input de DetermineRecharge'
+      type: object
+      properties:
+        countryCode:
+          required:
+            - "true"
+          type: number
+          example: 502
+        operationId:
+          required:
+            - "true"
+          type: number
+          example: 1
+        coId:
+          required:
+            - "true"
+          type: number
+          example: 13546
+        spCode:
+          required:
+            - "true"
+          type: number
+          example: 13546
+        snCodeList:
+          required:
+            - "true"
+          type: string
+          example: '97845'
+        referenceDate:
+          description: 'Fecha'
+          required:
+            - "true"
+          type: string
+          example: '01/01/2020'
+        writeDetail:
+          description: 'Opcion para guardar en Log'
+          required:
+            - "true"
+          type: string
+          example: 'Y o N'
+        userId:
+          description: 'ID de usuario'
+          required:
+            - "true"
+          type: string
+          example: 'PRUEGUA'
+
+    determineRechargeAutoInput:
+      title: determineRechargeAutoInput
+      description: 'Input de DetermineRecharge'
+      type: object
+      properties:
+        determineRecharge:
+          $ref: '#/components/schemas/determineRechargeInput'
+        tracking:
+          description: 'RequestId CMS de creación de contrato'
+          type: string
+
+    createHybridInput:
+      title: createHybridInput
+      description: 'Input de create hybrid'
+      type: object
+      properties:
+        countryCode:
+          required:
+            - "true"
+          type: number
+          example: 502
+        costCenterId:
+          description: 'id Center Cost'
+          required:
+            - "true"
+          type: number
+          example: 1
+        contractId:
+          required:
+            - "true"
+          type: string
+          example: '657997'
+        customerId:
+          required:
+            - "true"
+          type: number
+          example: 2
+        tmCode:
+          required:
+            - "true"
+          type: number
+          example: 456
+        telefono:
+          required:
+            - "true"
+          type: number
+          example: 50270568978
+        sim:
+          description: 'Numero SIM'
+          required:
+            - "true"
+          type: string
+          example: '64985130021564'
+        userId:
+          required:
+            - "true"
+          type: string
+          example: 'PRUEGUA'
+        observacion:
+          description: 'Comentario'
+          required:
+            - "false"
+          type: string
+
+    HybridResponse:
+      title: HybridResponse
+      description: Resultado de la consulta si el numero es hibrido
+      type: object
+      properties:
+        result:
+          $ref: '#/components/schemas/result'
+        isHybrid:
+            type: boolean
+            example: false
+  
+    ProfileIDResponse:
+      title: ProfileIDResponse
+      description: Resultado de la consulta del ID Perfil
+      type: object
+      properties:
+        result:
+          $ref: '#/components/schemas/result'
+        subClassId:
+            type: number
+            example: 56
+    
+    DetermineRechargeResponse:
+      title: DetermineRechargeResponse
+      description: 'Resultado de DetermineRecharge'
+      type: object
+      properties:
+        result:
+          $ref: '#/components/schemas/result'
+        BSCSTransactionId:
+            type: string
+            example: '564'
+        credit:
+            type: string
+            example: '1'
+        debit:
+            type: string
+            example: '2'
+
+    result:
+      title: result
+      description: Generic transaction response object.
+      type: object
+      properties:
+        hasError:
+          type: boolean
+          example: false
+          description: Indicates if the result object contains error.
+        code:
+          type: integer
+          example: 0
+          description: Error code.
+        message:
+          type: string
+          example: 'Exito'
+          description: Descriptive error message.
+        transactionId:
+          type: string
+          example: '67fc11c4-1d88-11ec-9621-0242ac130002'
+          description: Unique transaction number.
+    
+paths:
+  /Hybrid:
+    get:
+      description: 'verify if the received number is hybrid'
+      parameters:       
+        - name: countryCode
+          in: query
+          description: countryCode
+          required: true
+          schema:
+            type: integer
+            format: int32
+            example: 502
+        - name: costCenterId
+          in: query
+          description: 'id Center Cost'
+          required: true
+          schema:
+            type: integer
+            format: int32
+            example: 1
+        - name: contractId
+          in: query
+          description: 'id Contract/Client'
+          required: true
+          schema:
+            type: string
+            example: '657997'
+        - name: pRefDate
+          in: query
+          description: pRefDate
+          required: true
+          schema:
+            type: string            
+            example: 10                       
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/HybridResponse'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/result'
+
+  /Hybrid/create:
+    put:
+      summary: 'create a Hybrid'
+      requestBody: 
+        description: 'create hybrid in tn3'
+        required: true
+        content:       
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createHybridInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/result'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/result'
+
+  /Hybrid/profile:
+    get:
+      description: 'verify if the received number is hybrid'
+      parameters:       
+        - name: countryCode
+          in: query
+          description: countryCode
+          required: true
+          schema:
+            type: integer
+            format: int32
+            example: 502
+        - name: costId
+          in: query
+          description: 'id Center Cost'
+          required: true
+          schema:
+            type: integer
+            format: int32
+            example: 1
+        - name: tmCode
+          in: query
+          description: 'tmCode'
+          required: true
+          schema:
+            type: integer
+            format: int32            
+            example: 6545                     
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/ProfileIDResponse'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/result'
+
+  /Hybrid/determineRecharge:
+    post:
+      summary: 'Determinate Recharge'
+      requestBody:
+        description: 'Determinate Recharge'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/determineRechargeInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/DetermineRechargeResponse'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/result'
+
+  /Hybrid/determineRechargeAuto:
+    post:
+      summary: 'Determinate Recharge Auto'
+      requestBody:
+        description: 'Determinate Recharge Auto'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/determineRechargeAutoInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/DetermineRechargeResponse'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/result'
